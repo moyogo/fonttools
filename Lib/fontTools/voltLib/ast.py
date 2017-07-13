@@ -49,7 +49,7 @@ class GlyphDefinition(Statement):
     def __init__(self, location, name, gid, gunicode, gtype, components):
         Statement.__init__(self, location)
         self.name = name
-        self.id = gid
+        self.gid= gid
         self.unicode = gunicode
         self.type = gtype
         self.components = components
