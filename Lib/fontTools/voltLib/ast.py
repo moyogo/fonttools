@@ -53,6 +53,17 @@ class GlyphDefinition(Statement):
         self.unicode = gunicode
         self.type = gtype
         self.components = components
+        self.location = location
+
+    def build(self, builder):
+        if self.type == 'BASE':
+            builder.setGlyphClass(self.location, self.name, 1)
+        elif self.type == 'LIGATURE':
+            builder.setGlyphClass(self.location, self.name, 2)
+        elif self.type == 'MARK':
+            builder.setGlyphClass(self.location, self.name, 3)
+        elif self.type == 'COMPONENT':
+            builder.setGlyphClass(self.location, self.name, 4)
 
 
 class GroupDefinition(Statement):
