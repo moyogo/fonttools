@@ -45,7 +45,7 @@ def makeTTFont():
 class BuilderTest(unittest.TestCase):
     # VOLT files in data/*.vtp; output gets compared to data/*.ttx.
     TEST_VOLT_FILES = """
-        GlyphData
+        GlyphData EmptyLangSys
     """.split()
 
     def __init__(self, methodName):
