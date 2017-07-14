@@ -26,8 +26,8 @@ class Builder(object):
         self.glyphMap = font.getReverseGlyphMap()
         # for table 'GDEF'
         self.attachPoints_ = {}  # "a" --> {3, 7}
-        self.ligCaretCoords_ = {}  # "f_f_i" --> {300, 600}
-        self.ligCaretPoints_ = {}  # "f_f_i" --> {3, 7}
+        self.ligCaretCoords_ = {}  # unsupported
+        self.ligCaretPoints_ = {}  # unsupported
         self.glyphClassDefs_ = {}  # "fi" --> (2, (file, line, column))
         self.markAttach_ = {}  # "acute" --> (4, (file, line, column))
         self.markAttachClassID_ = {}  # frozenset({"acute", "grave"}) --> 4
@@ -91,10 +91,9 @@ class Builder(object):
     def buildGDEFMarkGlyphSetsDef_(self):
         sets = []
         for glyphs, id_ in sorted(self.markFilterSets_.items(),
-                                 key=lambda item: item[1]):
+                                  key=lambda item: item[1]):
             sets.append(glyphs)
         return otl.buildMarkGlyphSetsDef(sets, self.glyphMap)
-
 
     def setGlyphClass(self, location, glyph, glyphClass):
         oldClass, oldLocation = self.glyphClassDefs_.get(glyph, (None, None))
