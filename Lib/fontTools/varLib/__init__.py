@@ -175,7 +175,7 @@ def _add_avar(font, axes):
 
 	return avar
 
-def _add_stat(font, axes):
+def _add_stat(font, axes, instances=None):
 	# for now we just get the axis tags and nameIDs from the fvar,
 	# so we can reuse the same nameIDs which were defined in there.
 	# TODO make use of 'axes' once it adds style attributes info:
@@ -208,6 +208,56 @@ def _add_stat(font, axes):
 	# for the elided fallback name, we default to the base style name.
 	# TODO make this user-configurable via designspace document
 	stat.ElidedFallbackNameID = 2
+
+	# try to populate the axis records
+	if instances is not None:
+		nameTable = font['name']
+		stat.AxisValueArray = ot.AxisValueArray()
+		axisValuesDict = {}
+		axisValues = []
+		for axisIndex, axis in enumerate(axes):
+			values = set(
+				instance.location[axis] for instance in instances
+			)
+			axisValuesDict[axis] = values
+		for axisIndex, axis in enumerate(axes):
+			for value in sorted(axisValuesDict[axis]):
+				# valueName
+				# TODO: use localisedStyleName
+				valueNameSets = [set(i.styleName.split()) for i in instances if
+					i.location[axis] == value]
+				nameIntersection = valueNameSets[0].intersection(
+					*valueNameSets[1:])
+				# find elided name
+				elidable = False
+				# for otherAxis in axisValuesDict:
+				# 	if otherAxis == axis:
+				# 		continue
+				# 	otherValueNameSets = [set(i.styleName.split())
+				# 		for i in instances
+				# 		if i.location[axis] == value
+				# 	]
+					
+				# if any(len(valueNameSets[0]) != len(vns)
+				# 		for vns in valueNameSets):
+				# 	
+				if nameIntersection:
+					valueName = list(nameIntersection)[0]
+				else:
+					valueName = 'Regular'
+
+				axisValue = ot.AxisValue()
+				axisValue.Format = 1
+				axisValue.AxisIndex = axisIndex
+				axisValue.Value = value
+				# TODO: use addMultilingualName()
+				axisValue.ValueNameID = nameTable.addName(valueName)
+				# TODO set flag is elidable is necessary
+				# find if name is only in one value vector
+				axisValue.Flags = 0
+				axisValues.append(axisValue)
+
+		stat.AxisValueArray.AxisValue = axisValues
 
 # TODO Move to glyf or gvar table proper
 def _GetCoordinates(font, glyphName):
@@ -788,7 +838,7 @@ def build(designspace, master_finder=lambda s:s, exclude=[], optimize=True):
 	# TODO append masters as named-instances as well; needs .designspace change.
 	fvar = _add_fvar(vf, ds.axes, ds.instances)
 	if 'STAT' not in exclude:
-		_add_stat(vf, ds.axes)
+		_add_stat(vf, ds.axes, ds.instances)
 	if 'avar' not in exclude:
 		_add_avar(vf, ds.axes)
 
